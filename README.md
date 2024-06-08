@@ -11,15 +11,17 @@ Esqueça os emojis sem graça e os stickers sem sal! No trocaTroca, cada mensage
 ## Recursos Principais
 
 - **Velocidade Supersônica** 🚀: Nossas mensagens viajam mais rápido que fofoca em festa de família.
-- **Segurança Nível James Bond** 🕵️: Todas as mensagens são criptografadas com tecnologia de ponta (e um pouco de magia, porque por que não?).
 - **Entrega Garantida** 📬: Se não chegou, não foi nossa culpa. Talvez você precise de uma conexão de internet melhor. 🤷
-- **Modo Confidencial** 🤐: Mensagens que se autodestruem mais rápido que suas resoluções de Ano Novo.
 
 ## Como Funciona
 
 1. **Instale** a API e prepare-se para revolucionar suas trocas de mensagens.
 2. **Configure** suas chaves de API como se estivesse ajustando sua playlist favorita.
 3. **Envie** e **receba** mensagens com a facilidade de quem está trocando figurinhas no recreio.
+
+## Observação Importante
+
+Para que a API funcione corretamente, você deve criar um arquivo `serviceAccountKey.json` dentro do diretório `./src/Resources/`. Este arquivo deve conter as credenciais de acesso ao Firebase Realtime Database. Sem este arquivo, a mágica não acontece! ✨
 
 ## Contribuição
 
