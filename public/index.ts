@@ -20,10 +20,19 @@ app.post('/api/usuarios',
   }
 );
 
+app.post('/api/usuario',
+  async (req, res) => {
+    const { apelido, senha } = req.body;
+    const RESPONSE = await UsuarioController.buscarUsuario(apelido, senha);
+
+    res.send(RESPONSE);
+  }
+);
+
 app.post('/api/mensagens',
   async (req, res) => {
     const { apelido, mensagem } = req.body;
-
+    
     const RESPONSE = await UsuarioController.enviarMensagem(apelido, mensagem);
 
     res.send(RESPONSE);

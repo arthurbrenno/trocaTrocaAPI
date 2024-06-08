@@ -2,6 +2,7 @@ import { IUsuarioRepository } from "../Entities/IUsuarioRepository";
 import { Usuario } from "../Entities/Usuario";
 
 import { ChaveUnicaService } from "../Services/ChaveUnicaService";
+import { HashService } from "../Services/HashService";
 
 export class CriarUsuario
 {
@@ -26,19 +27,19 @@ export class CriarUsuario
     async execute(): Promise<Object>
     {
         const CHAVE_UNICA = ChaveUnicaService.criar(this.senha);
+        const CHAVE_HASHIFICADA = HashService.generate(this.senha);
 
-        const USUARIO = new Usuario(this.apelido, this.senha, this.caminhoFoto, CHAVE_UNICA);
+        const USUARIO = new Usuario(this.apelido, CHAVE_HASHIFICADA, this.caminhoFoto, CHAVE_UNICA);
+        const RESPONSE = await this.usuarioRepository.criarUsuario(USUARIO);
 
-        const response = await this.usuarioRepository.criarUsuario(USUARIO);
-        
-        if(response == -1) {
+        if(RESPONSE == -1) {
             return {
-                "rowsAffected": response
+                "linhasAfetadas": RESPONSE
             }
         }
 
         return {
-            "rowsAffected": response,
+            "linhasAfetadas": RESPONSE,
             "chaveUnica": USUARIO.getChaveUnica() 
         }
         

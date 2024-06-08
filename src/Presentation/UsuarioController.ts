@@ -1,6 +1,8 @@
 import { FirebaseDB } from "../Infrastructre/FirebaseDB";
+
 import { CriarUsuario } from "../UseCases/CriarUsuario";
 import { EnviarMensagem } from "../UseCases/EnviarMensagem";
+import { BuscarUsuario } from "../UseCases/BuscarUsuario";
 
 export class UsuarioController
 {
@@ -34,5 +36,16 @@ export class UsuarioController
         );
 
         return ENVIAR_MENSAGEM_USE_CASE.execute();
+    }
+
+    static async buscarUsuario(
+        apelido: string,
+        senha: string
+    )
+    {
+        const FIREBASE_DB = new FirebaseDB();
+        const BUSCAR_USUARIO_USE_CASE = new BuscarUsuario(FIREBASE_DB, apelido, senha); 
+        
+        return await BUSCAR_USUARIO_USE_CASE.execute();
     }
 }

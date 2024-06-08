@@ -4,10 +4,10 @@ import { Senha } from "./Primitives/Senha";
 
 export class Usuario
 {
-    public apelido: Apelido;
-    public senha: Senha;
-    public caminhoFoto: CaminhoFoto;
-    private chaveUnica: string;
+    public apelido!: Apelido;
+    public senha!: Senha;
+    public caminhoFoto!: CaminhoFoto;
+    private chaveUnica!: string;
 
     constructor(
         apelido: string, 
@@ -16,10 +16,14 @@ export class Usuario
         chaveUnica: string
     )
     {
-        this.apelido = new Apelido(apelido);
-        this.senha = new Senha(senha);
-        this.caminhoFoto = new CaminhoFoto(caminhoFoto);
-        this.chaveUnica = chaveUnica;
+        try {
+            this.apelido = new Apelido(apelido);
+            this.senha = new Senha(senha);
+            this.caminhoFoto = new CaminhoFoto(caminhoFoto);
+            this.chaveUnica = chaveUnica;
+        } catch (error: any) {
+            return error.message;
+        }
     }
     getChaveUnica()
     {
