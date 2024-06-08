@@ -7,6 +7,6 @@ export interface IUsuarioRepository
 {
     buscarUsuario(apelido: Apelido, senha: Senha): Promise<number>;
     criarUsuario(usuario: Usuario): Promise<number>;
-    trocarSenha(senha: Senha): any;
+    trocarSenha(chaveUnica: string, senha: Senha): Promise<number>;
     enviarMensagem(mensagem: Mensagem): Promise<number>;
 }

@@ -29,6 +29,15 @@ app.post('/api/usuario',
   }
 );
 
+app.post("/api/usuario/trocarSenha",
+  async (req, res) => {
+    const { chaveUnica, senha } = req.body;
+    const RESPONSE = await UsuarioController.trocarSenha(chaveUnica, senha);
+
+    res.send(RESPONSE);
+  }
+);
+
 app.post('/api/mensagens',
   async (req, res) => {
     const { apelido, mensagem } = req.body;

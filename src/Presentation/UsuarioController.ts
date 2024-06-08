@@ -3,6 +3,7 @@ import { FirebaseDB } from "../Infrastructre/FirebaseDB";
 import { CriarUsuario } from "../UseCases/CriarUsuario";
 import { EnviarMensagem } from "../UseCases/EnviarMensagem";
 import { BuscarUsuario } from "../UseCases/BuscarUsuario";
+import { TrocarSenha } from "../UseCases/TrocarSenha";
 
 export class UsuarioController
 {
@@ -47,5 +48,16 @@ export class UsuarioController
         const BUSCAR_USUARIO_USE_CASE = new BuscarUsuario(FIREBASE_DB, apelido, senha); 
         
         return await BUSCAR_USUARIO_USE_CASE.execute();
+    }
+
+    static async trocarSenha(
+        chaveUnica: string,
+        senha: string
+    )
+    {
+        const FIREBASE_DB = new FirebaseDB();
+        const TROCAR_SENHA_USE_CASE = new TrocarSenha(FIREBASE_DB, chaveUnica, senha);
+
+        return await TROCAR_SENHA_USE_CASE.execute();
     }
 }

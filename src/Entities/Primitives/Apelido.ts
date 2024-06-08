@@ -6,7 +6,7 @@ export class Apelido
     {
         if(apelido.length > 3)
         {
-            this.apelido = apelido;
+            this.apelido = this.stripTags(apelido);
             return;
         }
         throw new Error("Apelido menor que 3 caracteres!");
@@ -18,5 +18,9 @@ export class Apelido
     set(apelido: string): void
     {
         this.apelido = apelido;
+    }
+    private stripTags(apelido: string): string
+    {
+        return apelido.replace(/<\/?[^>]+(>|$)/g, "");
     }
 }

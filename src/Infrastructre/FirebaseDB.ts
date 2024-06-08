@@ -25,7 +25,7 @@ export class FirebaseDB implements IUsuarioRepository
 
     private async buscarUsuarioPorApelido(apelido: Apelido): Promise<number> {
         const APELIDO: string = apelido.get();
-        const USUARIO: any = await this.database.ref("usuarios").child(APELIDO).once("value");
+        const USUARIO: any = await this.database.ref(`apelidos/${APELIDO}`).once("value");
 
         if(USUARIO.exists()) return 1;
 
@@ -37,20 +37,20 @@ export class FirebaseDB implements IUsuarioRepository
         const SENHA: string = senha.get();
     
         try {
-            const snapshot = await this.database.ref(`usuarios/${APELIDO}`).once("value");
-            const usuario = snapshot.val();
+            const SNAPSHOT_APELIDOS = await this.database.ref(`apelidos/${APELIDO}`).once("value");
+            const CHAVE_UNICA = SNAPSHOT_APELIDOS.val();
     
-            if (!usuario) return -1; // Usuário não encontrado
-    
-            // Verificar se a senha fornecida corresponde à senha armazenada
-            if (usuario.senha === SENHA) {
-                return 1; // Senha correta
-            } else {
-                return -1; // Senha incorreta
-            }
+            if (!CHAVE_UNICA) return -1;
+            
+            const SNAPSHOT_USUARIOS = await this.database.ref(`usuarios/${CHAVE_UNICA}`).once("value");
+            const USUARIO = SNAPSHOT_USUARIOS.val();
+
+            if (USUARIO.senha === SENHA) return 1;
+ 
+            return -1;
         } catch (error) {
             console.error("Erro ao buscar usuário:", error);
-            return -1; // Erro ao buscar usuário
+            return -1;
         }
     }
 
@@ -63,6 +63,7 @@ export class FirebaseDB implements IUsuarioRepository
         const APELIDO = usuario.apelido.get();
         const SENHA = usuario.senha.get();
         const CAMINHO_FOTO = usuario.caminhoFoto.get();
+        const CHAVE_UNICA = usuario.getChaveUnica();
 
         try {
             const USUARIO_PLAIN = {
@@ -70,7 +71,9 @@ export class FirebaseDB implements IUsuarioRepository
                 caminhoFoto: CAMINHO_FOTO
             };
 
-            await this.database.ref("usuarios").child(APELIDO).set(USUARIO_PLAIN);
+            await this.database.ref("usuarios").child(CHAVE_UNICA).set(USUARIO_PLAIN);
+            await this.database.ref("apelidos").child(APELIDO).set(CHAVE_UNICA);
+
             return 1;
         } catch (error) {
             console.error("Erro ao criar usuário:", error);
@@ -78,8 +81,20 @@ export class FirebaseDB implements IUsuarioRepository
         }
     }
 
-    trocarSenha(senha: Senha) {
-        
+    async trocarSenha(chaveUnica: string, senha: Senha): Promise<number>
+    {
+        try {
+            const SENHA: string = senha.get();
+            const SNAPSHOT: any = await this.database.ref(`usuarios/${chaveUnica}`).once("value");
+            
+            if(!SNAPSHOT.exists()) return -1;
+
+            await this.database.ref(`usuarios/${chaveUnica}`).child("senha").set(SENHA);
+
+            return 1;
+        } catch (error) {
+            return -1;
+        }
     }
 
     async enviarMensagem(mensagem: Mensagem): Promise<number>{
@@ -93,7 +108,7 @@ export class FirebaseDB implements IUsuarioRepository
             return 1;
         } catch (error) {
             console.error("Erro ao enviar mensagem:", error);
-            return -1; // Falha
+            return -1;
         }
     }
 }
