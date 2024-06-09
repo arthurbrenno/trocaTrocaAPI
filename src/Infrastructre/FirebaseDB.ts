@@ -1,7 +1,8 @@
 import admin from "firebase-admin";
+import { Database } from "firebase-admin/database";
 
 import { IUsuarioRepository } from "../Entities/IUsuarioRepository";
-import { Database } from "firebase-admin/database";
+import { IChatRepository } from "../Entities/IChatRepository";
 
 import { Usuario } from "../Entities/Usuario";
 import { Senha } from "../Entities/Primitives/Senha";
@@ -14,7 +15,7 @@ admin.initializeApp({
     databaseURL: "https://trocatroca-a1e30-default-rtdb.firebaseio.com"
 });
 
-export class FirebaseDB implements IUsuarioRepository
+export class FirebaseDB implements IUsuarioRepository, IChatRepository
 {
     private database: Database;
 
@@ -26,10 +27,23 @@ export class FirebaseDB implements IUsuarioRepository
     private async buscarUsuarioPorApelido(apelido: Apelido): Promise<number> {
         const APELIDO: string = apelido.get();
         const USUARIO: any = await this.database.ref(`apelidos/${APELIDO}`).once("value");
-
+        
         if(USUARIO.exists()) return 1;
 
         return -1;
+    }
+
+    async buscarTodosUsuarios(apelido: Apelido): Promise<Object> {
+        if(await this.buscarUsuarioPorApelido(apelido) == -1) return { "codigo": 401 };
+
+        const SNAPSHOT = await this.database.ref("apelidos").once("value");
+        const USUARIOS = SNAPSHOT.val()
+
+        if(USUARIOS.hasOwnProperty(apelido.get())) delete USUARIOS[apelido.get()];
+
+        const APELIDOS = Object.keys(USUARIOS);
+    
+        return APELIDOS;
     }
 
     async buscarUsuario(apelido: Apelido, senha: Senha): Promise<number> {
@@ -99,16 +113,44 @@ export class FirebaseDB implements IUsuarioRepository
 
     async enviarMensagem(mensagem: Mensagem): Promise<number>{
         try {
-            const mensagemPlain = {
+            const MENSAGEM_PLAIN = {
                 apelido: mensagem.apelido.get(),
                 senha: mensagem.get()
             };
 
-            await this.database.ref("mensagens").push(mensagemPlain);
+            await this.database.ref("mensagens").push(MENSAGEM_PLAIN);
             return 1;
         } catch (error) {
             console.error("Erro ao enviar mensagem:", error);
             return -1;
+        }
+    }
+
+    async criarChat(apelidoParticipante1: Apelido, apelidoParticipante2: Apelido)
+    {
+        try{
+            const APELIDO_PARITIPANTE_1 = apelidoParticipante1.get();
+            const APELIDO_PARITIPANTE_2 = apelidoParticipante2.get();
+            const CHAT = this.database.ref("chats").push();
+            const CHAT_ID = CHAT.key;
+
+            const CHAT_PLAIN = {
+                "participantes": {
+                    APELIDO_PARITIPANTE_1: true,
+                    APELIDO_PARITIPANTE_2: true
+                },
+                mensagens: {}
+            }
+
+            await CHAT.set(CHAT_PLAIN);
+
+            return{
+                "codigo": 200,
+                "chat_id": CHAT_ID
+            }
+        } catch(error) {
+            console.error("Erro ao enviar mensagem:", error);
+            return {};
         }
     }
 }

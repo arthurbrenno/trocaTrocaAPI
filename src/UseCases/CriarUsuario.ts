@@ -3,6 +3,7 @@ import { Usuario } from "../Entities/Usuario";
 
 import { ChaveUnicaService } from "../Services/ChaveUnicaService";
 import { HashService } from "../Services/HashService";
+import { AuthService } from "../Services/AuthService";
 
 export class CriarUsuario
 {
@@ -29,18 +30,29 @@ export class CriarUsuario
         const CHAVE_UNICA = ChaveUnicaService.criar(this.apelido);
         const CHAVE_HASHIFICADA = HashService.generate(this.senha);
 
-        const USUARIO = new Usuario(this.apelido, CHAVE_HASHIFICADA, this.caminhoFoto, CHAVE_UNICA);
-        const RESPONSE = await this.usuarioRepository.criarUsuario(USUARIO);
-
-        if(RESPONSE == -1) {
-            return {
-                "linhasAfetadas": RESPONSE
+        try{
+            const USUARIO = new Usuario(this.apelido, CHAVE_HASHIFICADA, this.caminhoFoto, CHAVE_UNICA);
+            const RESPONSE = await this.usuarioRepository.criarUsuario(USUARIO);
+    
+            const AUTH_KEY = AuthService.gerarKey(USUARIO);
+    
+            console.log(AUTH_KEY);
+            if(RESPONSE == -1) {
+                return {
+                    "linhasAfetadas": RESPONSE
+                }
             }
-        }
-
-        return {
-            "linhasAfetadas": RESPONSE,
-            "chaveUnica": USUARIO.getChaveUnica() 
+    
+            return {
+                "linhasAfetadas": RESPONSE,
+                "chaveUnica": USUARIO.getChaveUnica(),
+                "authKey": AUTH_KEY
+            }
+        } catch(erro)
+        {
+            return{
+                "linhasAfetadas": -1
+            }
         }
         
     }

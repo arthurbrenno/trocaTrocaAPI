@@ -4,6 +4,10 @@ export class Senha
 
     constructor(senha: string)
     {
+        if(senha.length < 0)
+        {
+            throw new Error("Senha vazia!");
+        }
         this.senha = senha;
     }
     get(): string

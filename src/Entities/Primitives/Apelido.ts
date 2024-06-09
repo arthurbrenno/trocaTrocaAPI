@@ -4,12 +4,11 @@ export class Apelido
 
     constructor(apelido: string)
     {
-        if(apelido.length > 3)
+        if(!apelido || apelido.length < 3)
         {
-            this.apelido = this.stripTags(apelido);
-            return;
+            throw new Error("Apelido menor que 3 caracteres!");
         }
-        throw new Error("Apelido menor que 3 caracteres!");
+        this.apelido = this.stripTags(apelido);
     }
     get(): string
     {

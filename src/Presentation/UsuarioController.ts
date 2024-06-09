@@ -1,21 +1,35 @@
 import { FirebaseDB } from "../Infrastructre/FirebaseDB";
 
-import { CriarUsuario } from "../UseCases/CriarUsuario";
-import { EnviarMensagem } from "../UseCases/EnviarMensagem";
+import { BuscarTodosUsuarios } from "../UseCases/BuscarTodosUsuarios";
 import { BuscarUsuario } from "../UseCases/BuscarUsuario";
+import { CriarUsuario } from "../UseCases/CriarUsuario";
 import { TrocarSenha } from "../UseCases/TrocarSenha";
+import { EnviarMensagem } from "../UseCases/EnviarMensagem";
 
 export class UsuarioController
 {
+    private static FIREBASE_DB = new FirebaseDB();
+
+    static async buscarUsuarios(
+        authKey: any
+    ) : Promise<Object>
+    {
+        const BUSCAR_TODOS_USUARIOS_USE_CASE = new BuscarTodosUsuarios(
+            this.FIREBASE_DB,
+            authKey
+        );
+
+        return BUSCAR_TODOS_USUARIOS_USE_CASE.execute();
+    }
+
     static async criarUsuario(
         apelido: string, 
         senha: string, 
         caminhoFoto: string
     ): Promise<Object>
     {
-        const FIREBASE_DB = new FirebaseDB();
         const CRIAR_USUARIO_USE_CASE = new CriarUsuario(
-            FIREBASE_DB, 
+            this.FIREBASE_DB, 
             apelido, 
             senha, 
             caminhoFoto
@@ -29,9 +43,8 @@ export class UsuarioController
         mensagem: string
     ): Promise<Object>
     {
-        const FIREBASE_DB = new FirebaseDB();
         const ENVIAR_MENSAGEM_USE_CASE = new EnviarMensagem(
-            FIREBASE_DB, 
+            this.FIREBASE_DB, 
             apelido, 
             mensagem
         );
@@ -44,8 +57,11 @@ export class UsuarioController
         senha: string
     )
     {
-        const FIREBASE_DB = new FirebaseDB();
-        const BUSCAR_USUARIO_USE_CASE = new BuscarUsuario(FIREBASE_DB, apelido, senha); 
+        const BUSCAR_USUARIO_USE_CASE = new BuscarUsuario(
+            this.FIREBASE_DB, 
+            apelido, 
+            senha
+        ); 
         
         return await BUSCAR_USUARIO_USE_CASE.execute();
     }
@@ -55,8 +71,11 @@ export class UsuarioController
         senha: string
     )
     {
-        const FIREBASE_DB = new FirebaseDB();
-        const TROCAR_SENHA_USE_CASE = new TrocarSenha(FIREBASE_DB, chaveUnica, senha);
+        const TROCAR_SENHA_USE_CASE = new TrocarSenha(
+            this.FIREBASE_DB, 
+            chaveUnica, 
+            senha
+        );
 
         return await TROCAR_SENHA_USE_CASE.execute();
     }

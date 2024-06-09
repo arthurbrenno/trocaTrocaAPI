@@ -17,17 +17,23 @@ export class TrocarSenha
 
     async execute()
     {
-        const SENHA = new Senha(this.senha);
-        SENHA.set(HashService.generate(this.senha));
-        
-        const RESPOSTA: number =  await this.usuarioRepository.trocarSenha(this.chaveUnica, SENHA);
-
-        if(RESPOSTA == 1) return {
-            "linhasAfetadas": RESPOSTA
-        }
-
-        return {
-            "linhasAfetadas": RESPOSTA
+        try {
+            const SENHA = new Senha(this.senha);
+            SENHA.set(HashService.generate(this.senha));
+            
+            const RESPOSTA: number =  await this.usuarioRepository.trocarSenha(this.chaveUnica, SENHA);
+    
+            if(RESPOSTA == 1) return {
+                "linhasAfetadas": RESPOSTA
+            }
+    
+            return {
+                "linhasAfetadas": RESPOSTA
+            }
+        } catch (error) {
+            return{
+                "linhasAfetadas": -1
+            }
         }
     }
 }

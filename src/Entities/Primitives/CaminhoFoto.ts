@@ -4,6 +4,10 @@ export class CaminhoFoto
 
     constructor(caminhoFoto: string)
     {
+        if(caminhoFoto.length < 0)
+        {
+            throw new Error("Campo vazio!");
+        }
         this.caminhoFoto = caminhoFoto;
     }
     get(): string
