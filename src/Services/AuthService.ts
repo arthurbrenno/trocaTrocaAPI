@@ -10,7 +10,6 @@ export class AuthService {
         const PAYLOAD = {
             "apelido": apelido.get(),
         }
-
         return jwt.sign(PAYLOAD, AuthService.SECRET_KEY, {expiresIn: "2h"});
     }
     static async decodificarKey(authKey: string): Promise<JwtPayload | {}> 
