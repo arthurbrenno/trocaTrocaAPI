@@ -1,15 +1,14 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-import { Apelido } from "../Entities/Primitives/Apelido";
+import { Apelido } from "../Domain/ValueObjects/Apelido";
 
-export class AuthService
-{
-    private static SECRET_KEY: string = "hiPopoTomOnstRosesquipedAlIOfObIa";
+export class AuthService {
+  private static SECRET_KEY: string = "hiPopoTomOnstRosesquipedAlIOfObIa";
 
     static gerarKey(apelido: Apelido)
     {
         const PAYLOAD = {
-            "apelido": apelido.get()
+            "apelido": apelido.get(),
         }
 
         return jwt.sign(PAYLOAD, AuthService.SECRET_KEY, {expiresIn: "2h"});

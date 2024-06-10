@@ -1,37 +1,42 @@
-import { IUsuarioRepository } from "../Entities/IUsuarioRepository";
-import { Apelido } from "../Entities/Primitives/Apelido";
-import { Senha } from "../Entities/Primitives/Senha";
-import { Usuario } from "../Entities/Usuario";
-import { AuthService } from "../Services/AuthService";
+import { IUsuarioRepository } from "../Repositories/IUsuarioRepository";
+import { Apelido } from "../Domain/ValueObjects/Apelido";
+import { Senha } from "../Domain/ValueObjects/Senha";
 import { HashService } from "../Services/HashService";
+import { AuthService } from "../Services/AuthService";
 
-export class BuscarUsuario
-{
-    private usuarioRepository: IUsuarioRepository;
-    private apelido: string;
-    private senha: string;
+export class BuscarUsuario {
+  private usuarioRepository: IUsuarioRepository;
+  private apelido: string;
+  private senha: string;
 
-    constructor(usuarioRepository: IUsuarioRepository, apelido: string, senha: string)
-    {
-        this.usuarioRepository = usuarioRepository;
-        this.apelido = apelido;
-        this.senha = senha;
-    }
+  constructor(
+    usuarioRepository: IUsuarioRepository,
+    apelido: string,
+    senha: string,
+  ) {
+    this.usuarioRepository = usuarioRepository;
+    this.apelido = apelido;
+    this.senha = senha;
+  }
 
-    async execute()
-    {
-        try{
-            const APELIDO: Apelido = new Apelido(this.apelido);
-            const SENHA: Senha = new Senha(HashService.generate(this.senha));
-            
-            const AUTH_KEY = AuthService.gerarKey(APELIDO);
+  async execute() {
+    try {
+      const APELIDO: Apelido = new Apelido(this.apelido);
+      const SENHA: Senha = new Senha(HashService.generate(this.senha));
 
-            const RESPONSE: number = await this.usuarioRepository.buscarUsuario(APELIDO, SENHA); 
+      const AUTH_KEY = AuthService.gerarKey(APELIDO);
 
-            if(RESPONSE == -1) return {
-                "codigo": 401,
-                "mensagem": "Usuário não existe!"
-            }
+      const RESPONSE: number = await this.usuarioRepository.buscarUsuario(
+        APELIDO,
+        SENHA,
+      );
+
+      if (RESPONSE == -1)
+        return {
+          codigo: 401,
+          mensagem: "Usuário não existe!",
+          authKey: AUTH_KEY
+        };
 
             return {
                 "codigo": 200,
