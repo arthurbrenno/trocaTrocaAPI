@@ -34,7 +34,7 @@ export class CriarUsuario
             const USUARIO = new Usuario(this.apelido, CHAVE_HASHIFICADA, this.caminhoFoto, CHAVE_UNICA);
             const RESPONSE = await this.usuarioRepository.criarUsuario(USUARIO);
     
-            const AUTH_KEY = AuthService.gerarKey(USUARIO);
+            const AUTH_KEY = AuthService.gerarKey(USUARIO.apelido);
     
             console.log(AUTH_KEY);
             if(RESPONSE == -1) {

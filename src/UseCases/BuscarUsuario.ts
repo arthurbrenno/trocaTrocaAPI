@@ -2,6 +2,7 @@ import { IUsuarioRepository } from "../Entities/IUsuarioRepository";
 import { Apelido } from "../Entities/Primitives/Apelido";
 import { Senha } from "../Entities/Primitives/Senha";
 import { Usuario } from "../Entities/Usuario";
+import { AuthService } from "../Services/AuthService";
 import { HashService } from "../Services/HashService";
 
 export class BuscarUsuario
@@ -22,6 +23,8 @@ export class BuscarUsuario
         try{
             const APELIDO: Apelido = new Apelido(this.apelido);
             const SENHA: Senha = new Senha(HashService.generate(this.senha));
+            
+            const AUTH_KEY = AuthService.gerarKey(APELIDO);
 
             const RESPONSE: number = await this.usuarioRepository.buscarUsuario(APELIDO, SENHA); 
 
@@ -32,7 +35,8 @@ export class BuscarUsuario
 
             return {
                 "codigo": 200,
-                "mensagem": "Usuário existe!"
+                "mensagem": "Usuário existe!",
+                "authKey": AUTH_KEY
             }
         } catch(error: any){
             return {

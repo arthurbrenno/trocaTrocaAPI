@@ -54,7 +54,7 @@ app.post(
   }
 );
 
-app.post(
+app.put(
   "/api/usuario/trocarSenha",
   async (req, res) => {
     const { chaveUnica, senha } = req.body;
