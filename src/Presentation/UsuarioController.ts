@@ -6,6 +6,7 @@ import { CriarUsuario } from "../UseCases/CriarUsuario";
 import { TrocarSenha } from "../UseCases/TrocarSenha";
 import { EnviarMensagem } from "../UseCases/EnviarMensagem";
 import { AICompletionUseCase } from "../UseCases/AICompletionUseCase";
+import { CriarChat } from "../UseCases/CriarChat";
 
 export class UsuarioController {
   private static FIREBASE_DB = new FirebaseDB();
@@ -35,13 +36,17 @@ export class UsuarioController {
   }
 
   static async enviarMensagem(
-    apelido: string,
+    authKey: string,
+    chat_id: string,
     mensagem: string,
+    timestamp: string
   ): Promise<Object> {
     const ENVIAR_MENSAGEM_USE_CASE = new EnviarMensagem(
       this.FIREBASE_DB,
-      apelido,
+      authKey,
+      chat_id,
       mensagem,
+      timestamp
     );
 
     return ENVIAR_MENSAGEM_USE_CASE.execute();
@@ -69,5 +74,20 @@ export class UsuarioController {
 
   static async obterAICompletion(mensagens: string[]) {
     return new AICompletionUseCase(mensagens).execute();
+  }
+  
+  static async criarChat(
+    authKey: string,
+    apelidoParticipante2: string,
+  )
+  {
+    const CRIAR_CHAT_USE_CASE = new CriarChat(
+      this.FIREBASE_DB,
+      this.FIREBASE_DB,
+      authKey, 
+      apelidoParticipante2
+    );
+
+    return CRIAR_CHAT_USE_CASE.execute();
   }
 }

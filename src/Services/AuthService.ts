@@ -17,9 +17,9 @@ export class AuthService {
         try {
             const AUTH_KEY_DECODIFICADA = await jwt.verify(authKey, AuthService.SECRET_KEY);
             return AUTH_KEY_DECODIFICADA as JwtPayload; // Assume que o payload do token JWT é JwtPayload
-        } catch (err) {
+        } catch (err: any) {
             console.error('Erro ao decodificar o token:', err);
-            return {};
+            throw Error(err.message);
         }
     }
     

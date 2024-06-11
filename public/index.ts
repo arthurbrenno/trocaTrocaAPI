@@ -32,9 +32,10 @@ app.get("/api/usuarios", async (req, res) => {
 
   res.send(RESPOSTA);
 });
+
 app.post("/api/usuarios", async (req, res) => {
   const { apelido, senha, caminhoFoto } = req.body;
-
+  console.log(req.body);
   const RESPOSTA = await UsuarioController.criarUsuario(
     apelido,
     senha,
@@ -60,12 +61,15 @@ app.put(
   res.send(RESPOSTA);
 });
 
-app.post("/api/chats/", async (req, res) => {
-  const { apelidoParticipante1, apelidoParticipante2 } = req.body;
+app.post("/api/usuario/chats/", async (req, res) => {
+  const { authKey, apelidoParticipante2 } = req.body;
+  console.log(req.body, apelidoParticipante2);
+  const RESPOSTA = await UsuarioController.criarChat(
+    authKey, 
+    apelidoParticipante2
+  );
 
-  //const RESPOSTA = await UsuarioController.criarChat(apelido, mensagem);
-
-  //res.send(RESPOSTA);
+  res.send(RESPOSTA);
 });
 
 app.post("/api/ai/completions/", async (req, res) => {
@@ -73,14 +77,17 @@ app.post("/api/ai/completions/", async (req, res) => {
   res.send(await UsuarioController.obterAICompletion(mensagens));
 });
 
-app.post("/api/chats/:id", async (req, res) => {
-  const CHAT_ID = req.params.id;
-  const { apelido } = req.body;
 
-  //const RESPOSTA = await UsuarioController.buscarMensagensParaUsuario(apelido, CHAT_ID);
+app.post(
+  "/api/mensagens/",
+  async (req, res) => {
+    const { authKey, chat_id, mensagem, timestamp } = req.body;
 
-  //res.send(RESPOSTA);
-});
+    console.log(req.body);
+
+    res.send(await UsuarioController.enviarMensagem(authKey, chat_id, mensagem, timestamp));
+  }
+);
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

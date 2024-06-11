@@ -22,7 +22,7 @@ export class FirebaseDB implements IUsuarioRepository, IChatRepository {
     this.database = admin.database();
   }
 
-  private async buscarUsuarioPorApelido(apelido: Apelido): Promise<number> {
+  public async buscarUsuarioPorApelido(apelido: Apelido): Promise<number> {
     const APELIDO: string = apelido.get();
     const USUARIO: any = await this.database
       .ref(`apelidos/${APELIDO}`)
@@ -123,33 +123,47 @@ export class FirebaseDB implements IUsuarioRepository, IChatRepository {
 
   async enviarMensagem(mensagem: Mensagem): Promise<number> {
     try {
-      const MENSAGEM_PLAIN = {
-        apelido: mensagem.apelido.get(),
-        senha: mensagem.get(),
-      };
-
-      await this.database.ref("mensagens").push(MENSAGEM_PLAIN);
+      const database = admin.database();
+      const messagesRef = database.ref(`chats/${mensagem.chat_id}/mensagens`);
+      // Crie uma nova chave única para a mensagem
+      const novaMensagemRef = messagesRef.push();
+  
+      // Defina os dados da mensagem
+      await novaMensagemRef.set({
+        senderId: mensagem.apelido.get(),
+        text: mensagem.mensagem,
+        timestamp: mensagem.timestamp
+      });
+      
+      console.log('Mensagem criada com sucesso:', novaMensagemRef.key);
       return 1;
     } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+      console.error('Erro ao criar mensagem:', error);
       return -1;
     }
   }
 
-  async criarChat(
+  public async criarChat(
     apelidoParticipante1: Apelido,
     apelidoParticipante2: Apelido,
-  ) {
+  ):  Promise<{ codigo: number; chat_id?: string }> {
     try {
       const APELIDO_PARITIPANTE_1 = apelidoParticipante1.get();
       const APELIDO_PARITIPANTE_2 = apelidoParticipante2.get();
+
+      const CHAT_JA_EXISTE = await this.chatExists(APELIDO_PARITIPANTE_1, APELIDO_PARITIPANTE_2);
+
+      if(CHAT_JA_EXISTE) return{
+        codigo: 500
+      }
+
       const CHAT = this.database.ref("chats").push();
-      const CHAT_ID = CHAT.key;
+      const CHAT_ID = CHAT.key ?? "";
 
       const CHAT_PLAIN = {
         participantes: {
-          APELIDO_PARITIPANTE_1: true,
-          APELIDO_PARITIPANTE_2: true,
+          [APELIDO_PARITIPANTE_1]: true,
+          [APELIDO_PARITIPANTE_2]: true,
         },
         mensagens: {},
       };
@@ -158,11 +172,30 @@ export class FirebaseDB implements IUsuarioRepository, IChatRepository {
 
       return {
         codigo: 200,
-        chat_id: CHAT_ID,
+        "chat_id": CHAT_ID,
       };
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
-      return {};
+      return {
+        codigo: 500,
+      };
     }
   }
+
+  public async chatExists(userId1: string, userId2: string): Promise<boolean> {
+    const snapshot = await this.database.ref('chats').once('value');
+  
+    if (snapshot.exists()) {
+      const chats = snapshot.val();
+      for (const chatId in chats) {
+        const chat = chats[chatId];
+        if (chat && chat.participantes[userId1] && chat.participantes[userId2]) {
+          return true; // Chat já existe
+        }
+      }
+    }
+    
+    return false; // Chat não existe
+  }
 }
+

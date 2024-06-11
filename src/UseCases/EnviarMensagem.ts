@@ -1,26 +1,39 @@
+import { JwtPayload } from "jsonwebtoken";
+
+import { AuthService } from "../Services/AuthService";
+
 import { IUsuarioRepository } from "../Repositories/IUsuarioRepository";
 import { Mensagem } from "../Domain/ValueObjects/Mensagem";
-import { Usuario } from "../Domain/Entities/Usuario";
 
 export class EnviarMensagem {
   private usuarioRepository: IUsuarioRepository;
 
-  private apelido: string;
+  private authKey: string;
   private mensagem: string;
+  private timestamp: string;
+  private chat_id: string;
 
   constructor(
     usuarioRepository: IUsuarioRepository,
-    apelido: string,
+    authKey: string,
+    chat_id: string,
     mensagem: string,
+    timestamp: string
   ) {
     this.usuarioRepository = usuarioRepository;
-    this.apelido = apelido;
+    this.authKey = authKey;
+    this.chat_id = chat_id;
     this.mensagem = mensagem;
+    this.timestamp = timestamp;
   }
 
   async execute(): Promise<Object> {
-    const MENSAGEM = new Mensagem(this.apelido, this.mensagem);
-
+    const USUARIO: JwtPayload = await AuthService.decodificarKey(
+      this.authKey,
+    );
+    console.log("Antes mensagem:", this.chat_id, USUARIO.apelido);
+    const MENSAGEM = new Mensagem(USUARIO.apelido, this.chat_id, this.mensagem, this.timestamp);
+    console.log("Apos mensagem:", MENSAGEM.chat_id, MENSAGEM.apelido);
     const response = await this.usuarioRepository.enviarMensagem(MENSAGEM);
 
     return {
